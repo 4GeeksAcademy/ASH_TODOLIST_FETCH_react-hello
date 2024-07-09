@@ -15,10 +15,6 @@ const Home = () => {
         }
     };
 
-    // function deleteTarea(item) {
-    //     console.log(item.id);
-    // }
-
     function obtenerTareas() {
         fetch(urlAPI4geeks+'/users/agusotoholt', {
             method:'GET',
