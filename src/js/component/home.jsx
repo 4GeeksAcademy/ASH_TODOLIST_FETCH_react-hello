@@ -34,7 +34,7 @@ const Home = () => {
                             className="list-group-item d-flex justify-content-between align-items-center" 
                             onMouseEnter={() => setHoverIndex(index)} 
                             onMouseLeave={() => setHoverIndex(null)}>
-                            {valor}{hoverIndex === index && (<button type="button" className="btn-close float-end" aria-label="Close" onClick={() => deleteTarea(index)}></button>)}
+                            {valor}{hoverIndex === index ? (<button type="button" className="btn-close float-end" aria-label="Close" onClick={() => deleteTarea(index)}></button>) : null}
                             </li>
                         ))}
                         <li className="list-group-item text-muted small text-start">{list.length} {list.length === 1 ? 'item left' : 'items left'}</li>
