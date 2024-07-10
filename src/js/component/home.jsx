@@ -11,8 +11,7 @@ const Home = () => {
             task === "" ? alert("la tarea esta vacia, tontin") : crearTareas();
             setTask("");
             e.preventDefault();
-            obtenerTareas();
-        }
+            }
     };
 
     function obtenerTareas() {
@@ -20,8 +19,34 @@ const Home = () => {
             method:'GET',
             headers:{"Content-Type": "application/json"}
         })
-        .then((response)=> response.json())
+        .then((response)=> { 
+            if (response.status === 404) {
+                crearUsuario();
+            }
+            return response.json()})
         .then((data)=> setList(data.todos))
+        .catch((error)=> console.log(error))
+    }
+
+    function editarTareas() {
+        fetch(urlAPI4geeks+'/todos/agusotoholt', {
+            method:'PUT',
+            body: JSON.stringify({"label": task, "is_done": true}),
+            headers:{"Content-Type": "application/json"}
+        })
+        .then(response => {
+            if (response.status === 201) {
+                return response.json();
+            }
+            return false; 
+        })
+        .then((data)=> {
+            if (data) {            
+                setList(list.concat(data)); 
+                return null;
+            }
+            alert("no hubo respuesta");
+        })
         .catch((error)=> console.log(error))
     }
 
@@ -31,18 +56,40 @@ const Home = () => {
             body: JSON.stringify({"label": task, "is_done": false}),
             headers:{"Content-Type": "application/json"}
         })
-        .then((response)=> response.json())
-        .then((data)=> console.log(data))
+        .then(response => {
+            if (response.status === 201) {
+                return response.json();
+            }
+            return false; 
+        })
+        .then((data)=> {
+            if (data) {            
+                setList(list.concat(data)); 
+                return null;
+            }
+            alert("no hubo respuesta");
+        })
         .catch((error)=> console.log(error))
     }
 
-    function borrarTareas(item) {
-        fetch(urlAPI4geeks+'/todos/'+item.id, {
+    function borrarTareas(id) {
+        fetch(urlAPI4geeks+'/todos/'+id, {
             method:'DELETE',
             headers:{"Content-Type": "application/json"}
         })
-        .then((response)=> response.json())
-        .then((data)=> console.log(data))
+        .then(response => {
+            if (response.status === 204) {
+                return response;
+            }
+            return false;
+        })
+        .then((data)=>{
+            if (data) {           
+                setList(list.filter(item => item.id !== id)); 
+                return null;
+            }
+            alert("no hubo respuesta");
+        })
         .catch((error)=> console.log(error))
     }
 
@@ -52,14 +99,10 @@ const Home = () => {
             headers:{"Content-Type": "application/json"}
         })
         .then((response)=> response.json())
-        .then((data)=> console.log(data))
         .catch((error)=> console.log(error))
     }
 
-//aca antes del return van los useEffect
-
     useEffect (() => {
-        // crearUsuario(); //lo comento porque el usuario ya esta creado, pero hay que hacerlo al ejecutarla un nuevo dia
         obtenerTareas();
     }, [])
 
@@ -71,14 +114,14 @@ const Home = () => {
 			{list.length === 0 ? (
                     <p>No tasks, add a task</p>
                 ) : (
-                    <ul className="list-group">
+                    <ul className="list-group shadow bg-body-tertiary rounded">
                         {list.map((item, index) => (
                             <li 
-                            key={index} 
+                            key={item.id} 
                             className="list-group-item d-flex justify-content-between align-items-center" 
                             onMouseEnter={() => setHoverIndex(index)} 
                             onMouseLeave={() => setHoverIndex(null)}>
-                            {item.label}{hoverIndex === index ? (<button type="button" className="btn-close float-end" aria-label="Close" onClick={() => {borrarTareas(item); obtenerTareas();}}></button>) : null}
+                            {item.label}{hoverIndex === index ? (<button type="button" className="btn-close float-end" aria-label="Close" onClick={() => {borrarTareas(item.id);}}></button>) : null}
                             </li>
                         ))}
                         <li className="list-group-item text-muted small text-start">{list.length} {list.length === 1 ? 'item left' : 'items left'}</li>
